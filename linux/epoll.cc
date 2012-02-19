@@ -136,6 +136,7 @@ void handle_event(int epollfd, epoll_event event)
       close(event.data.fd);
       
       if (clients_map.find(event.data.fd) != clients_map.end()) {
+        delete[] pclient->buffer;
         delete pclient;
         clients_map.erase(event.data.fd);
       }
@@ -221,7 +222,7 @@ int main(int argc, char **argv)
         printf("Connection established\n");
         set_nonblocking(peerfd);
 
-        //add peerfd to epoll queue
+        //add peerfd to epoll queue, Edge trigger
         ev.events = EPOLLIN | EPOLLET;
         ev.data.fd = peerfd;
         if ( epoll_ctl(epollfd, EPOLL_CTL_ADD, peerfd, &ev) <0) {
